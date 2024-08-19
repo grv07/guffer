@@ -6,13 +6,6 @@ struct Guffer {
     pos: usize,
 }
 
-enum Action {
-    MoveLeft,
-    MoveRight,
-    Insert,
-    Delete,
-}
-
 impl Guffer {
     fn new(src: Vec<char>, pos: usize, buffer_size: usize) -> Self {
         let mut buffer = Vec::with_capacity(src.len() + buffer_size);
@@ -58,9 +51,9 @@ impl Guffer {
 
     fn grow_buffer(&mut self) {}
 
-    // fn remove() {
-    //     todo!()
-    // }
+    fn remove(&mut self) {
+        todo!()
+    }
 
     fn move_left(&mut self, move_count: usize) {
         for _ in 0..move_count {
