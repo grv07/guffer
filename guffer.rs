@@ -3,7 +3,6 @@ struct Guffer {
     buffer: Vec<char>,
     head: usize,
     tail: usize,
-    pos: usize,
 }
 
 impl Guffer {
@@ -31,28 +30,37 @@ impl Guffer {
             buffer,
             head: head,
             tail: tail,
-            pos,
         }
     }
 
-    fn insert(&mut self, input: &[char]) -> Result<bool, String> {
-        if input.len() > self.tail - self.head {
-            return Err(String::from("Error: Reallocation required"));
+    fn insert(&mut self, input: &[char]) -> bool {
+        let n = input.len();
+
+        if n > self.tail - self.head {
+            self.grow_buffer(n);
         }
 
         for c in input {
             self.buffer[self.head] = *c;
             self.head += 1;
-            self.pos += 1;
         }
 
-        Ok(true)
+        true
     }
 
-    fn grow_buffer(&mut self) {}
+    fn grow_buffer(&mut self, n: usize) {
+        let start = self.tail - self.head;
+        let end = n + 10;
 
-    fn remove(&mut self) {
-        todo!()
+        for _ in start..end {
+            self.buffer.insert(self.tail, '_');
+            self.tail += 1;
+        }
+    }
+
+    fn delete(&mut self) {
+        self.head -= 1;
+        self.buffer[self.head] = '_';
     }
 
     fn move_left(&mut self, move_count: usize) {
@@ -63,7 +71,6 @@ impl Guffer {
 
             self.head -= 1;
             self.tail -= 1;
-            self.pos -= 1;
         }
     }
 
@@ -75,7 +82,6 @@ impl Guffer {
 
             self.head += 1;
             self.tail += 1;
-            self.pos += 1;
         }
     }
 
@@ -86,7 +92,7 @@ impl Guffer {
 
         println!("");
         for (i, _item) in self.buffer.iter().enumerate() {
-            if self.pos == i {
+            if self.head - 1 == i {
                 print!("^");
                 continue;
             } else if self.head == i {
@@ -121,9 +127,16 @@ fn main() {
     g.move_left(4);
     g.raw_dump();
 
-    let test_src: Vec<char> = "this is some zybrish here".chars().collect();
-    if g.insert(&test_src).is_err() {}
+    let test_src: Vec<char> = " this is some zybrish here as".chars().collect();
+    let _ = g.insert(&test_src);
 
+    g.raw_dump();
+
+    for _ in 0..3 {
+        g.delete();
+    }
+
+    println!("After deleting 3 char ");
     g.raw_dump();
 
     let test_src: Vec<char> = " Guarav".chars().collect();
@@ -131,5 +144,6 @@ fn main() {
 
     g.raw_dump();
 
+    print!("IDE: ");
     g.dump();
 }
